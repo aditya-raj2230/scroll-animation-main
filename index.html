@@ -1,223 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Wholesale</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffee Shop</title>
     <style>
-      body, html {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-      }
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-      canvas {
-        position: fixed !important;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1;
-        pointer-events: none;
-      }
+        .main-container {
+            width: 100%;
+            height: 100vh;
+            background-image: url('/assets/Wholesale.png');
+            background-size: 80%;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: #3F737F;
+        }
 
-      #overlay-heading {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 4em;
-        font-weight: bold;
-        font-family: 'Impact', 'Arial Black', sans-serif;
-        z-index: 10;
-        pointer-events: none;
-        background-color: rgba(0, 0, 0, 0.5);
-        padding: 20px 40px;
-        border-radius: 15px;
-        text-align: center;
-        color: transparent;
-        background-clip: text;
-        -webkit-background-clip: text;
-        background-image: linear-gradient(90deg, rgb(55, 54, 54), rgb(96, 95, 95), rgb(52, 52, 52));
-        white-space: nowrap;
-      }
-
-      body {
-        overflow-y: auto;
-      }
-
-      .download-button {
-        position: fixed;
-        bottom: 40px;
-        right: 40px;
-        padding: 15px 30px;
-        font-size: 2em;
-        z-index: 10;
-        pointer-events: auto;
-        background-color: rgba(0, 0, 0, 0.5);
-        padding: 20px 40px;
-        border-radius: 15px;
-        text-align: center;
-        color: transparent;
-        background-clip: text;
-        -webkit-background-clip: text;
-        background-image: linear-gradient(90deg, rgb(55, 54, 54), rgb(96, 95, 95), rgb(52, 52, 52));
-        text-decoration: none;
-        font-family: Arial, sans-serif;
-        transition: transform 0.2s, box-shadow 0.2s;
-      }
-
-      .download-button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      }
-
-      /* Add these styles for scroll indicator (optional) */
-      .scroll-indicator {
-        position: fixed;
-        right: 40px;
-        padding: 20px 40px;
-        font-size: 2em;
-        z-index: 10;
-        pointer-events: none;
-        background-color: rgba(0, 0, 0, 0.5);
-        border-radius: 15px;
-        text-align: center;
-        color: transparent;
-        background-clip: text;
-        -webkit-background-clip: text;
-        background-image: linear-gradient(90deg, rgb(55, 54, 54), rgb(96, 95, 95), rgb(52, 52, 52));
-        font-family: Arial, sans-serif;
-      }
-
-      .scroll-down {
-        bottom: 40px;
-      }
+        /* Hide scrollbars but keep functionality */
+        ::-webkit-scrollbar {
+            display: none;
+        }
     </style>
-  <script type="importmap">
-    {
-      "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js",
-        "jsm/": "https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/"
-      }
-    }
-  </script>
-  <link rel="preload" href="product.html" as="document">
-  <link rel="preload" href="index.html" as="document">
-  <link rel="preload" href="product.js" as="script">
-  <link rel="preload" href="index.js" as="script">
-  <link rel="preload" href="wholesale.js" as="script">
-  <script src="transition.js"></script>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-    }
-    
-    /* Hide scrollbars but keep functionality */
-    ::-webkit-scrollbar {
-      display: none;
-    }
-  </style>
-  </head>
-  <body>
-    <div class="transition-overlay">
-      <div class="loader"></div>
-    </div>
-    
-    <div id="overlay-heading">WHOLESALE COFFEE</div>
+</head>
+<body>
+    <div class="main-container"></div>
 
     <script>
-      let isTransitioning = false;
-      let lastScrollTime = 0;
-      const scrollCooldown = 1000; // 1 second cooldown between scroll triggers
+        // Scroll logic
+        let isTransitioning = false;
+        let lastScrollTime = 0;
+        const scrollCooldown = 1000;
 
-      document.addEventListener('DOMContentLoaded', () => {
-        // Prefetch and cache pages
-        const pagesToPreload = ['product.html', 'index.html'];
-        
-        pagesToPreload.forEach(page => {
-          const link = document.createElement('link');
-          link.rel = 'prefetch';
-          link.href = page;
-          document.head.appendChild(link);
-          
-          // Optional: Prerender the pages
-          fetch(page).then(response => response.text()).then(html => {
-            const cache = window.sessionStorage;
-            cache.setItem(page, html);
-          });
+        // For mouse wheel
+        window.addEventListener('wheel', (e) => {
+            const currentTime = new Date().getTime();
+            if (currentTime - lastScrollTime < scrollCooldown) return;
+            
+            if (e.deltaY > 0) {
+                window.location.href = 'product.html';
+            }
+            
+            lastScrollTime = currentTime;
         });
-      });
 
-      function handlePageTransition(direction) {
-        if (isTransitioning) return;
-        
-        const currentTime = new Date().getTime();
-        if (currentTime - lastScrollTime < scrollCooldown) return;
-        
-        lastScrollTime = currentTime;
-        isTransitioning = true;
+        // For touch devices
+        let touchStartY = 0;
+        window.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
 
-        const overlay = document.querySelector('.transition-overlay');
-        const loader = document.querySelector('.loader');
-        document.body.classList.add('transitioning');
-        
-        overlay.classList.add('active');
-        loader.classList.add('active');
-        
-        const nextPage = direction === 'down' ? 'product.html' : 'index.html';
-        
-        // Check if page is in cache
-        const cachedPage = window.sessionStorage.getItem(nextPage);
-        if (cachedPage) {
-          setTimeout(() => {
-            window.location.href = nextPage;
-          }, 500);
-        } else {
-          // Fallback to normal navigation
-          setTimeout(() => {
-            window.location.href = nextPage;
-          }, 800);
-        }
-      }
-
-      // Track scroll events
-      let touchStartY = 0;
-      let touchEndY = 0;
-
-      // For mouse wheel
-      window.addEventListener('wheel', (e) => {
-        if (e.deltaY > 0) {
-          handlePageTransition('down');
-        } else if (e.deltaY < 0) {
-          handlePageTransition('up');
-        }
-      });
-
-      // For touch devices
-      window.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-      });
-
-      window.addEventListener('touchend', (e) => {
-        touchEndY = e.changedTouches[0].clientY;
-        const deltaY = touchEndY - touchStartY;
-        
-        if (Math.abs(deltaY) > 50) { // Minimum swipe distance
-          if (deltaY < 0) {
-            handlePageTransition('down');
-          } else {
-            handlePageTransition('up');
-          }
-        }
-      });
+        window.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            const deltaY = touchEndY - touchStartY;
+            
+            const currentTime = new Date().getTime();
+            if (currentTime - lastScrollTime < scrollCooldown) return;
+            
+            if (Math.abs(deltaY) > 50 && deltaY < 0) {
+                window.location.href = 'product.html';
+            }
+            
+            lastScrollTime = currentTime;
+        });
     </script>
-    
-    <script type="module" src="wholesale.js"></script>
-     
-  
-  </body>
+</body>
 </html>

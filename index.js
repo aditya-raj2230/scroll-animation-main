@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OBJLoader } from "jsm/loaders/OBJLoader.js";
 import { OrbitControls } from "jsm/controls/OrbitControls.js";
+import { Raycaster } from 'three';
 
 const w = window.innerWidth / 2;
 const h = window.innerHeight;
@@ -55,6 +56,66 @@ objLoader.load("./assets/Coffee OBJ.obj", (obj) => {
   });
   sceneData.geo = geometry;
 });
+
+// Add these variables after your other declarations
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+let isHovering = false;
+
+// Create overlay element
+const overlay = document.createElement('div');
+overlay.style.cssText = `
+    position: fixed;
+    display: none;
+    pointer-events: none;
+    z-index: 1000;
+    transition: opacity 0.7s ease;
+    opacity: 0;
+    left: 75%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+`;
+
+// Create image element
+const overlayImage = document.createElement('img');
+overlayImage.src = './assets/theanswer-doodlepng11.png';
+overlayImage.style.cssText = `
+    width: 500px;
+    height: auto;
+`;
+
+overlay.appendChild(overlayImage);
+document.body.appendChild(overlay);
+
+// Add mouse move listener
+function onMouseMove(event) {
+    mouse.x = ((event.clientX - canvas.offsetLeft) / canvas.clientWidth) * 2 - 1;
+    mouse.y = -((event.clientY - canvas.offsetTop) / canvas.clientHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    if (mesh) {
+        const intersects = raycaster.intersectObject(mesh);
+
+        if (intersects.length > 0) {
+            if (!isHovering) {
+                isHovering = true;
+                overlay.style.display = 'block';
+                setTimeout(() => {
+                    overlay.style.opacity = '1';
+                }, 0);
+            }
+        } else {
+            if (isHovering) {
+                isHovering = false;
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                }, 300);
+            }
+        }
+    }
+}
 
 // Initialize the scene with the loaded geometry
 function initScene({ geo }) {
@@ -124,6 +185,9 @@ function initScene({ geo }) {
 
   const stars = addStars();
 
+  // Add mouse move listener
+  canvas.addEventListener('mousemove', onMouseMove);
+
   // Animate function
   function animate() {
     requestAnimationFrame(animate);
@@ -153,3 +217,9 @@ function handleWindowResize() {
 }
 
 window.addEventListener("resize", handleWindowResize, false);
+
+// Clean up when needed
+function cleanup() {
+    canvas.removeEventListener('mousemove', onMouseMove);
+    document.body.removeChild(overlay);
+}
