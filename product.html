@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Answer - Product</title>
+    <script src="transition.js"></script>
+    <style>
+      
+      body {
+        margin: 0;
+        display: flex;
+        flex-direction: row;
+        color: #ffffff;
+        font-family: Arial, sans-serif;
+        background-color: #447783;
+      }
+
+      #three-canvas {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 50%;
+        height: 100%;
+      }
+        /* Hide scrollbars but keep functionality */
+        ::-webkit-scrollbar {
+        display: none;
+      }
+
+      #content {
+        margin-left: 0;
+        margin-right: 50%;
+        flex: 1;
+        padding: 0 20px;
+        background-color: #447783;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      .content-box {
+        background-color: #0a192f;
+        padding: 30px;
+        width: 100%;
+        height: auto;
+        margin: 20px 70px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .logo-container {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+
+      .logo-container img {
+        max-width: 320px;
+        margin-bottom: 10px;
+        width: 100%;
+      }
+
+      .text-content {
+        width: 100%;
+        font-size: 13px;
+        color: #e6e6e6;
+        line-height: 1.4;
+        text-align: left;
+      }
+
+      .up-button {
+        position: fixed;
+        top: 40px;
+        right: 40px;
+        padding: 20px 40px;
+        font-size: 2em;
+        z-index: 10;
+        pointer-events: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: 15px;
+        text-align: center;
+        color: transparent;
+        background-clip: text;
+        -webkit-background-clip: text;
+        background-image: linear-gradient(90deg, rgb(55, 54, 54), rgb(96, 95, 95), rgb(52, 52, 52));
+        text-decoration: none;
+        font-family: Arial, sans-serif;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .up-button:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+    </style>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.161/build/three.module.js",
+          "jsm/": "https://cdn.jsdelivr.net/npm/three@0.161/examples/jsm/"
+        }
+      }
+    </script>
+    <link rel="preload" href="wholesale.html" as="document">
+    <link rel="preload" href="index.html" as="document">
+    <link rel="preload" href="wholesale.js" as="script">
+    <link rel="preload" href="index.js" as="script">
+    <link rel="preload" href="product.js" as="script">
+  </head>
+  <body>
+    <div class="transition-overlay">
+      <div class="loader"></div>
+    </div>
+    
+    <canvas id="three-canvas"></canvas>
+    <div id="content">
+      <div class="content-box">
+        <div class="logo-container">
+          <img src="assets/The Answer Logo.webp" alt="The Answer Logo">
+        </div>
+        <div class="text-content">
+          $11.25/lb || $7.78/10oz || $24.75/Kilo || $56.25/5lb<br><br>
+          Our flagship blend does double duty for both brewed coffee and espresso applications. Pronounced fruit, chocolate, and caramel notes from three separate origins make for a coffee that's incredibly intricate, yet roasted to be beautifully balanced. You can dig in and analyze it, or just turn your brain off and enjoy it. In milk based drinks The Answer melts into pure caramel and butterscotch, with hints of fruit peeking around the corner. We've been working on this one for a while and are incredibly proud of what we've created together.<br><br>
+          Origin // Colombia, Brazil, Ethiopia <br>Region // Huila, Mogiana, Yirgacheffe <br> Farm // Various <br> Variety // Caturra, Yellow Bourbon, Heirloom <br> Elevation // 1,100-1,900 masl <br> Process // Natural, Washed <br> Flavor Notes // Caramel, Berries, Chocolate <br> Espresso Preparation // 19.1 - 19.7 g's in, 31 - 34 g's out, 26 - 32 sec's
+        </div>
+      </div>
+    </div>
+    <script type="module" src="index.js"></script>
+    <script>
+      let isTransitioning = false;
+      let lastScrollTime = 0;
+      const scrollCooldown = 1000; // 1 second cooldown
+
+      function handlePageTransition(direction) {
+        if (isTransitioning) return;
+        
+        const currentTime = new Date().getTime();
+        if (currentTime - lastScrollTime < scrollCooldown) return;
+        
+        lastScrollTime = currentTime;
+        isTransitioning = true;
+
+        const overlay = document.querySelector('.transition-overlay');
+        const loader = document.querySelector('.loader');
+        document.body.classList.add('transitioning');
+        
+        overlay.classList.add('active');
+        loader.classList.add('active');
+        
+        const nextPage = direction === 'down' ? 'product.html' : 'index.html';
+        
+        // Check if page is in cache
+        const cachedPage = window.sessionStorage.getItem(nextPage);
+        if (cachedPage) {
+          setTimeout(() => {
+            window.location.href = nextPage;
+          }, 500);
+        } else {
+          // Fallback to normal navigation
+          setTimeout(() => {
+            window.location.href = nextPage;
+          }, 800);
+        }
+      }
+
+      // Track scroll events
+      let touchStartY = 0;
+      let touchEndY = 0;
+
+      // For mouse wheel
+      window.addEventListener('wheel', (e) => {
+        if (e.deltaY < 0) { // Changed direction: scroll up to go up
+          handlePageTransition('up');
+        }
+      });
+
+      // For touch devices
+      window.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+      });
+
+      window.addEventListener('touchend', (e) => {
+        touchEndY = e.changedTouches[0].clientY;
+        const deltaY = touchEndY - touchStartY;
+        
+        if (Math.abs(deltaY) > 50) { // Minimum swipe distance
+          if (deltaY > 0) { // Changed direction: swipe down to go up
+            handlePageTransition('up');
+          }
+        }
+      });
+    </script>
+  </body>
+</html> 
